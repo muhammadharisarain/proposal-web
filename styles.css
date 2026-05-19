@@ -1,0 +1,318 @@
+/* ---------- Design tokens ---------- */
+:root {
+  --bg-1: #ffb6d5;
+  --bg-2: #ff7eb6;
+  --bg-3: #c084fc;
+  --bg-4: #ff5e8a;
+  --card-bg: rgba(255, 255, 255, 0.78);
+  --card-border: rgba(255, 255, 255, 0.65);
+  --ink: #2a1230;
+  --ink-soft: #5b3a66;
+  --accent: #e0245e;
+  --yes: #ff3e7f;
+  --yes-2: #ff7eb6;
+  --no: #6b6b7a;
+  --shadow: 0 25px 60px -15px rgba(140, 30, 80, 0.45);
+
+  /* Dynamic — JS updates this to grow the Yes button */
+  --yes-scale: 1;
+}
+
+/* ---------- Reset-ish ---------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ink);
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 800px at 10% 10%, #fff0f7 0%, transparent 60%),
+    radial-gradient(1000px 800px at 90% 90%, #f3e0ff 0%, transparent 55%),
+    linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 35%, var(--bg-4) 70%, var(--bg-3) 100%);
+  background-size: 200% 200%;
+  animation: bgShift 18s ease-in-out infinite;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@keyframes bgShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* ---------- Floating hearts background ---------- */
+.hearts {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.hearts span {
+  position: absolute;
+  bottom: -10vh;
+  font-size: 22px;
+  opacity: 0.55;
+  animation: floatUp linear infinite;
+  filter: drop-shadow(0 2px 6px rgba(255, 80, 140, 0.25));
+  user-select: none;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateY(-115vh) rotate(360deg); opacity: 0; }
+}
+
+/* ---------- Main card ---------- */
+.card {
+  position: relative;
+  z-index: 2;
+  margin: 0 auto;
+  max-width: min(560px, 92vw);
+  padding: clamp(28px, 5vw, 52px) clamp(24px, 5vw, 48px);
+  border-radius: 28px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--shadow);
+  text-align: center;
+
+  /* Center on screen */
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0;
+  animation: cardIn 0.7s cubic-bezier(.2,.9,.25,1.2) 0.15s forwards;
+}
+@keyframes cardIn {
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.emoji-bounce {
+  font-size: clamp(36px, 6vw, 52px);
+  animation: bob 2.4s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-8px) rotate(4deg); }
+}
+
+.title {
+  margin: 8px 0 6px;
+  font-size: clamp(26px, 4.4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.accent {
+  background: linear-gradient(90deg, var(--accent), #b14bff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.subtitle {
+  margin: 0 0 22px;
+  color: var(--ink-soft);
+  font-size: clamp(13px, 2.2vw, 15px);
+}
+
+/* ---------- Buttons ---------- */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  min-height: 64px; /* keeps card stable when No button escapes */
+}
+
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: clamp(14px, 2.2vw, 16px);
+  padding: 14px 22px;
+  border-radius: 999px;
+  white-space: nowrap;       /* never wrap the label */
+  display: inline-block;     /* survive flex-item blockification when escaping */
+  transition:
+    transform 0.35s cubic-bezier(.2,.9,.25,1.2),
+    box-shadow 0.35s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    top 0.45s cubic-bezier(.34, 0.01, .26, 1),
+    left 0.45s cubic-bezier(.34, 0.01, .26, 1);
+  will-change: transform;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+/* Yes — grows over time via --yes-scale */
+.btn-yes {
+  color: #fff;
+  background: linear-gradient(135deg, var(--yes) 0%, var(--yes-2) 100%);
+  box-shadow:
+    0 10px 25px -10px rgba(255, 62, 127, 0.7),
+    0 0 0 0 rgba(255, 62, 127, 0.35);
+  transform: scale(var(--yes-scale));
+  transform-origin: center;
+}
+.btn-yes:hover { filter: brightness(1.05); }
+.btn-yes:active { filter: brightness(0.97); }
+
+/* Pulse intensifies as Yes grows — the larger it gets, the more it pulses */
+.btn-yes.pulsing {
+  animation: pulseGlow 1.4s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow:
+      0 10px 25px -10px rgba(255, 62, 127, 0.7),
+      0 0 0 0 rgba(255, 62, 127, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 14px 30px -8px rgba(255, 62, 127, 0.85),
+      0 0 0 14px rgba(255, 62, 127, 0);
+  }
+}
+
+/* No — gets meaner-looking after escapes */
+.btn-no {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 16px -6px rgba(0,0,0,0.2);
+}
+.btn-no:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
+.btn-no.shake {
+  animation: shake 0.45s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* When the No button enters "escape mode" it's positioned fixed and moved around */
+.btn-no.escaping {
+  position: fixed;
+  z-index: 5;
+  margin: 0;
+}
+
+/* ---------- Success screen ---------- */
+.success {
+  position: fixed; inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  background:
+    radial-gradient(900px 600px at 50% 40%, rgba(255,255,255,0.4) 0%, transparent 70%),
+    linear-gradient(135deg, #ff7eb6 0%, #ff5e8a 50%, #b14bff 100%);
+}
+.success.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+.success-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 24px;
+  color: #fff;
+  max-width: 92vw;
+}
+.big-heart {
+  font-size: clamp(72px, 14vw, 130px);
+  animation: heartPop 0.9s cubic-bezier(.2,.9,.25,1.4) both,
+             bob 2.2s ease-in-out 0.9s infinite;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.25));
+}
+@keyframes heartPop {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  60%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.success-title {
+  font-size: clamp(26px, 5vw, 48px);
+  margin: 12px 0 8px;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  text-shadow: 0 4px 18px rgba(120, 0, 60, 0.35);
+  animation: bouncyIn 0.7s 0.25s cubic-bezier(.2,.9,.25,1.4) both;
+}
+.success-sub {
+  font-size: clamp(15px, 2.4vw, 20px);
+  margin: 0 0 26px;
+  opacity: 0.95;
+  animation: bouncyIn 0.7s 0.45s cubic-bezier(.2,.9,.25,1.4) both;
+}
+@keyframes bouncyIn {
+  0%   { transform: translateY(20px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.btn-small {
+  font-size: 14px;
+  padding: 12px 18px;
+  animation: bouncyIn 0.7s 0.65s cubic-bezier(.2,.9,.25,1.4) both;
+}
+
+/* ---------- Confetti ---------- */
+.confetti {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.confetti i {
+  position: absolute;
+  top: -10vh;
+  width: 10px; height: 14px;
+  border-radius: 2px;
+  opacity: 0.95;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { transform: translate3d(var(--dx, 0px), 120vh, 0) rotate(var(--rot, 720deg)); }
+}
+
+/* ---------- Hide card after success ---------- */
+.card.gone {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.85);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 420px) {
+  .actions { gap: 10px; }
+  .btn { padding: 12px 18px; }
+}
